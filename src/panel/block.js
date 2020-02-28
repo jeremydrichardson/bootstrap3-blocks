@@ -92,7 +92,7 @@ registerBlockType( 'jeremydrichardson/bootstrap3-panel-block', {
 			<div className="panel panel-default">
 				<div className="panel-heading" role="tab">
 					<h4 className="panel-title">
-						<a role="button" data-toggle="collapse" data-target="" onclick="jQuery(this).next('collapse').collapse('toggle')">
+						<a role="button" onclick="jQuery(this).parents('.panel-heading').next().collapse('toggle')">
 							{props.attributes.heading}
 						</a>
 					</h4>
