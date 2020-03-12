@@ -12,6 +12,7 @@ import './style.scss';
 const { __ } = wp.i18n; // Import __() from wp.i18n
 const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.blocks
 const { InnerBlocks } = wp.editor;
+const { dispatch } = wp.data;
 
 /**
  * Register: aa Gutenberg Block.
@@ -49,7 +50,12 @@ registerBlockType( 'jeremydrichardson/bootstrap3-panelgroup-block', {
 	 * @returns {Mixed} JSX Component.
 	 */
 	edit: ( props ) => {
-		// Creates a <p class='wp-block-cgb-block-bootstrap3-blocks'></p>.
+		// Update the target of all child blocks
+		const { innerBlocks } = wp.data.select("core/block-editor").getBlock(props.clientId);
+		innerBlocks.forEach( (innerBlock) => {
+			wp.data.dispatch( 'core/editor' ).updateBlockAttributes( innerBlock.clientId, { parentClass: props.attributes.className } );
+		});
+
 		return (
 			<div className={props.className}>
 				<InnerBlocks 

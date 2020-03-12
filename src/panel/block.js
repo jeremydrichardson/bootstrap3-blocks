@@ -12,6 +12,7 @@ import './style.scss';
 const { __ } = wp.i18n; // Import __() from wp.i18n
 const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.blocks
 const { RichText, PlainText } = wp.editor;
+const { useSelect } = wp.data;
 
 /**
  * Register: aa Gutenberg Block.
@@ -38,13 +39,19 @@ registerBlockType( 'jeremydrichardson/bootstrap3-panel-block', {
 	attributes: {
 		heading: {
 			source: "text",
-			selector: ".panel__heading"
+			selector: ".panel-heading a"
 		},
 		body: {
 			type: "array",
 			source: "children",
-			selector: ".panel__body"
+			selector: ".panel-body"
 		},
+		parentClass: {
+			type: "text",
+		},
+		id: {
+			type: "text",
+		}
 	},
 
 	/**
@@ -59,6 +66,11 @@ registerBlockType( 'jeremydrichardson/bootstrap3-panel-block', {
 	 * @returns {Mixed} JSX Component.
 	 */
 	edit: ( props ) => {
+		const parentClass = wp.data.select("core/block-editor").getBlockAttributes(wp.data.select("core/block-editor").getBlockRootClientId(props.clientId)).className;
+		props.setAttributes({ parentClass: parentClass });
+
+		props.setAttributes({ id: 'panel-' + props.clientId});
+
 		// Creates a <p class='wp-block-cgb-block-bootstrap3-blocks'></p>.
 		return (
 			<div className={ props.className }>
@@ -88,16 +100,21 @@ registerBlockType( 'jeremydrichardson/bootstrap3-panel-block', {
 	 * @returns {Mixed} JSX Frontend HTML.
 	 */
 	save: ( props ) => {
+		const parentClassArray = props.attributes.parentClass.split(' ');
+		const parentClassArrayDot = parentClassArray.map( function (e) {
+			return '.' + e;
+		});
+		const parentClassString = parentClassArrayDot.join(' ');
 		return (
 			<div className="panel panel-default">
 				<div className="panel-heading" role="tab">
 					<h4 className="panel-title">
-						<a role="button" data-toggle="collapse" data-target="" onclick="jQuery(this).next('collapse').collapse('toggle')">
+						<a role="button" data-toggle="collapse" data-parent={parentClassString} data-target={'#' + props.attributes.id}>
 							{props.attributes.heading}
 						</a>
 					</h4>
 				</div>
-				<div class="collapse" role="tabpanel">
+				<div class="collapse" role="tabpanel" id={props.attributes.id}>
 					<div className="panel-body">
 						{props.attributes.body}
 					</div>
