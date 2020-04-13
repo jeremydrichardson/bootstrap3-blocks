@@ -11,7 +11,8 @@ import './style.scss';
 
 const { __ } = wp.i18n; // Import __() from wp.i18n
 const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.blocks
-const { RichText, PlainText } = wp.editor;
+const { RichText, PlainText, InnerBlocks } = wp.editor;
+const { useSelect } = wp.data;
 
 /**
  * Register: aa Gutenberg Block.
@@ -38,13 +39,19 @@ registerBlockType( 'jeremydrichardson/bootstrap3-panel-block', {
 	attributes: {
 		heading: {
 			source: "text",
-			selector: ".panel__heading"
+			selector: ".panel-heading a"
 		},
 		body: {
 			type: "array",
 			source: "children",
-			selector: ".panel__body"
+			selector: ".panel-body"
 		},
+		parentClass: {
+			type: "text",
+		},
+		id: {
+			type: "text",
+		}
 	},
 
 	/**
@@ -67,11 +74,12 @@ registerBlockType( 'jeremydrichardson/bootstrap3-panel-block', {
 					value={props.attributes.heading}
 					placeholder="Heading"
 				/>
-				<RichText
+				<InnerBlocks />
+				{/*<RichText
 					onChange={content => props.setAttributes({ body: content })}
 					value={props.attributes.body}
 					placeholder="Body content"
-				/>
+				/>*/}
 			</div>
 		);
 	},
@@ -90,17 +98,20 @@ registerBlockType( 'jeremydrichardson/bootstrap3-panel-block', {
 	save: ( props ) => {
 		return (
 			<div className="panel panel-default">
+<<<<<<< HEAD
 				<div className="panel-heading" role="tab">
 					<h4 className="panel-title">
 						<a role="button" onclick="jQuery(this).parents('.panel-heading').next().collapse('toggle')">
 							{props.attributes.heading}
 						</a>
 					</h4>
+=======
+				<div className="panel-heading">
+					{props.attributes.heading}
+>>>>>>> 04848d6b243629b3f50ab2740d4d96add39aa12e
 				</div>
-				<div class="collapse" role="tabpanel">
-					<div className="panel-body">
-						{props.attributes.body}
-					</div>
+				<div className="panel-body">
+					<InnerBlocks.Content />
 				</div>
 			</div>
 		);
