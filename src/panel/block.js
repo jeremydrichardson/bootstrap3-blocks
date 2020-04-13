@@ -11,7 +11,7 @@ import './style.scss';
 
 const { __ } = wp.i18n; // Import __() from wp.i18n
 const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.blocks
-const { RichText, PlainText } = wp.editor;
+const { RichText, PlainText, InnerBlocks } = wp.editor;
 const { useSelect } = wp.data;
 
 /**
@@ -66,11 +66,6 @@ registerBlockType( 'jeremydrichardson/bootstrap3-panel-block', {
 	 * @returns {Mixed} JSX Component.
 	 */
 	edit: ( props ) => {
-		const parentClass = wp.data.select("core/block-editor").getBlockAttributes(wp.data.select("core/block-editor").getBlockRootClientId(props.clientId)).className;
-		props.setAttributes({ parentClass: parentClass });
-
-		props.setAttributes({ id: 'panel-' + props.clientId});
-
 		// Creates a <p class='wp-block-cgb-block-bootstrap3-blocks'></p>.
 		return (
 			<div className={ props.className }>
@@ -79,11 +74,12 @@ registerBlockType( 'jeremydrichardson/bootstrap3-panel-block', {
 					value={props.attributes.heading}
 					placeholder="Heading"
 				/>
-				<RichText
+				<InnerBlocks />
+				{/*<RichText
 					onChange={content => props.setAttributes({ body: content })}
 					value={props.attributes.body}
 					placeholder="Body content"
-				/>
+				/>*/}
 			</div>
 		);
 	},
@@ -100,24 +96,13 @@ registerBlockType( 'jeremydrichardson/bootstrap3-panel-block', {
 	 * @returns {Mixed} JSX Frontend HTML.
 	 */
 	save: ( props ) => {
-		const parentClassArray = props.attributes.parentClass.split(' ');
-		const parentClassArrayDot = parentClassArray.map( function (e) {
-			return '.' + e;
-		});
-		const parentClassString = parentClassArrayDot.join(' ');
 		return (
 			<div className="panel panel-default">
-				<div className="panel-heading" role="tab">
-					<h4 className="panel-title">
-						<a role="button" data-toggle="collapse" data-parent={parentClassString} data-target={'#' + props.attributes.id}>
-							{props.attributes.heading}
-						</a>
-					</h4>
+				<div className="panel-heading">
+					{props.attributes.heading}
 				</div>
-				<div class="collapse" role="tabpanel" id={props.attributes.id}>
-					<div className="panel-body">
-						{props.attributes.body}
-					</div>
+				<div className="panel-body">
+					<InnerBlocks.Content />
 				</div>
 			</div>
 		);
