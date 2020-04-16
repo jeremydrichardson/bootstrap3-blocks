@@ -11,8 +11,10 @@ import './style.scss';
 
 const { __ } = wp.i18n; // Import __() from wp.i18n
 const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.blocks
-const { RichText, PlainText, InnerBlocks } = wp.editor;
-const { useSelect } = wp.data;
+const { RichText, InspectorControls } = wp.editor;
+const { PlainText, InnerBlocks } = wp.blockEditor;
+const { TextControl, ToggleControl, Panel, PanelBody, PanelRow, FormToggle } = wp.components;
+const { Fragment } = wp.element;
 
 /**
  * Register: aa Gutenberg Block.
@@ -39,7 +41,7 @@ registerBlockType( 'jeremydrichardson/bootstrap3-panel-block', {
 	attributes: {
 		heading: {
 			source: "text",
-			selector: ".panel-heading a"
+			selector: ".panel-heading"
 		},
 		body: {
 			type: "array",
@@ -51,6 +53,13 @@ registerBlockType( 'jeremydrichardson/bootstrap3-panel-block', {
 		},
 		id: {
 			type: "text",
+		},
+		groupID: {
+			type: "text",
+		},
+		collapse: {
+			type: "boolean",
+			default: false
 		}
 	},
 
@@ -67,20 +76,50 @@ registerBlockType( 'jeremydrichardson/bootstrap3-panel-block', {
 	 */
 	edit: ( props ) => {
 		// Creates a <p class='wp-block-cgb-block-bootstrap3-blocks'></p>.
+
 		return (
-			<div className={ props.className }>
-				<PlainText
-					onChange={content => props.setAttributes({ heading: content })}
-					value={props.attributes.heading}
-					placeholder="Heading"
-				/>
-				<InnerBlocks />
-				{/*<RichText
-					onChange={content => props.setAttributes({ body: content })}
-					value={props.attributes.body}
-					placeholder="Body content"
-				/>*/}
-			</div>
+			<Fragment>
+				<InspectorControls>
+					<PanelBody title="Bootstrap">
+						<PanelRow>
+							<label htmlFor="collapse">Collapse</label>
+							<FormToggle
+								id="collapse"
+								label="Collapse"
+								checked={ props.attributes.collapse }
+								onChange={ () => props.setAttributes( { collapse: ! props.attributes.collapse }) }
+							/>
+						</PanelRow>
+						
+						<PanelRow>
+							<label>ID</label>
+							<PlainText
+								onChange={content => props.setAttributes({ id: content })}
+								value={props.attributes.id}
+							/>
+						</PanelRow>
+						<PanelRow>
+							<label>Group ID</label>
+							<PlainText
+								onChange={content => props.setAttributes({ groupID: content })}
+								value={props.attributes.groupID}
+							/>
+						</PanelRow>
+					</PanelBody>
+				</InspectorControls>
+				<div className={`${ props.className } panel panel-default`}>
+					<div className="panel-heading">
+						<PlainText
+							onChange={content => props.setAttributes({ heading: content })}
+							value={props.attributes.heading}
+							placeholder="Heading"
+						/>
+					</div>
+					<div className="panel-body">
+						<InnerBlocks />
+					</div>
+				</div>
+			</Fragment>
 		);
 	},
 
@@ -96,24 +135,33 @@ registerBlockType( 'jeremydrichardson/bootstrap3-panel-block', {
 	 * @returns {Mixed} JSX Frontend HTML.
 	 */
 	save: ( props ) => {
-		return (
-			<div className="panel panel-default">
-<<<<<<< HEAD
-				<div className="panel-heading" role="tab">
-					<h4 className="panel-title">
-						<a role="button" onclick="jQuery(this).parents('.panel-heading').next().collapse('toggle')">
+		console.log(props.attributes.collapse);
+		if (props.attributes.collapse) {
+			return (
+				<div className="panel panel-default">
+					<div className="panel-heading" role="tab" id={`heading-${props.attributes.id}`}>
+						<a role="button" data-toggle="collapse" data-parent={props.attributes.groupID} href={`#collapse-${props.attributes.id}`} aria-expanded="false" aria-controls={`collapse-${props.attributes.id}`}>
 							{props.attributes.heading}
 						</a>
-					</h4>
-=======
-				<div className="panel-heading">
-					{props.attributes.heading}
->>>>>>> 04848d6b243629b3f50ab2740d4d96add39aa12e
+					</div>
+					<div id={`collapse-${props.attributes.id}`} class="panel-collapse collapse" role="tabpanel" aria-labelledby={`heading-${props.attributes.id}`}>
+						<div className="panel-body">
+							<InnerBlocks.Content />
+						</div>
+					</div>
 				</div>
-				<div className="panel-body">
-					<InnerBlocks.Content />
+			);
+		} else {
+			return (
+				<div className="panel panel-default">
+					<div className="panel-heading">
+						{props.attributes.heading}
+					</div>
+					<div className="panel-body">
+						<InnerBlocks.Content />
+					</div>
 				</div>
-			</div>
-		);
+			);
+		}
 	},
 } );
